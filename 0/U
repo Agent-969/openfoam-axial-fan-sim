@@ -1,0 +1,64 @@
+FoamFile
+{
+    version 2.0;
+    format  ascii;
+    class   volVectorField;
+    object  U;
+}
+
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   uniform (0 0 0);
+
+boundaryField
+{
+    farField
+    {
+        // Lets air both enter and leave freely depending on local pressure -
+        // essential for a self-induced/entrained flow with no prescribed flow rate
+        type            pressureInletOutletVelocity;
+        value           uniform (0 0 0);
+    }
+
+    axialFan
+    {
+        // blade + hub surface: mesh (and hence fluid at the wall) physically
+        // rotates with the rotorZone, so plain no-slip via mesh motion is correct
+        type            movingWallVelocity;
+        value           uniform (0 0 0);
+    }
+
+    AMI_rotor
+    {
+        type            movingWallSlipVelocity;
+        value           uniform (0 0 0);
+    }
+
+    AMI_background
+    {
+        type            slip;
+        value           uniform (0 0 0);
+    }
+
+    nonConformalCyclic_on_AMI_rotor
+    {
+        type            nonConformalCyclic;
+        value           $internalField;
+    }
+
+    nonConformalCyclic_on_AMI_background
+    {
+        type            nonConformalCyclic;
+        value           $internalField;
+    }
+
+    nonConformalError_on_AMI_rotor
+    {
+        type            nonConformalError;
+    }
+
+    nonConformalError_on_AMI_background
+    {
+        type            nonConformalError;
+    }
+}
